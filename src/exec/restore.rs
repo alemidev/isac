@@ -6,9 +6,10 @@ impl crate::conf::Module {
 		ctx.installer.install(&self.dependencies)?;
 
 		for c in self.configs.iter() {
+			std::fs::create_dir_all(&ctx.config_to)?;
 			fs_extra::copy_items(
 				&[&ctx.config_from.join(c)],
-				ctx.config_to.join(c),
+				&ctx.config_to,
 				&CopyOptions::new().overwrite(true)
 			)?;
 		}

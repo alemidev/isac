@@ -6,8 +6,11 @@ pub use context::Context;
 
 #[derive(Debug, thiserror::Error)]
 pub enum ExecutorError {
+	#[error("I/O error: {0} - {0:?}")]
+	IO(#[from] std::io::Error),
+
 	#[error("error copying files: {0} - {0:?}")]
-	IO(#[from] fs_extra::error::Error),
+	Copy(#[from] fs_extra::error::Error),
 
 	#[error("error installing packages: {0} - {0:?}")]
 	Installation(#[from] crate::tool::installer::InstallerError),
