@@ -21,11 +21,21 @@ enum Action {
 	/// show loaded config and quit
 	Config,
 
-	/// apply all modules from loaded config tree
-	Apply {
+	/// apply changes from modules
+	Restore {
+		/// restore a single module, or all if not specified
+		module: Option<String>,
+
 		// /// perform a dry run, without actually applying changes
 		// #[arg(long, default_value_t = false)]
 		// dry_run: bool,
+	},
+
+	/// generate snapshot for modules
+	Snapshot {
+		/// snapshot a single module, or all if not specified
+		module: Option<String>,
+
 	}
 }
 
@@ -60,7 +70,13 @@ fn main() {
 
 	let ctx = exec::Context::new(config, cwd);
 
-	if let Err(e) = ctx.exec() {
-		eprintln!("[!] error applying changes to system: {e}");
+	let res = match cli.action {
+		Action::Config => unreachable!(),
+		Action::Snapshot { module } => ctx.snapshot(module),
+		Action::Restore { module } => ctx.restore(module),
+	};
+
+	if let Err(e) = res {
+		eprintln!("[!] error executing restore/snapshot: {e}");
 	}
 }

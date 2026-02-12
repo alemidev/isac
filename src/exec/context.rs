@@ -26,10 +26,25 @@ impl Context {
 		}
 	}
 
-	pub fn exec(self) -> Result<(), Box<dyn std::error::Error>> {
+	pub fn restore(self, filter: Option<String>) -> Result<(), Box<dyn std::error::Error>> {
 		for (name, module) in self.cfg.r#mod.iter() {
-			println!(" > applying '{name}'");
-			module.apply(&self)?;
+			if !filter.as_ref().map(|m| m == name).unwrap_or(true) {
+				continue;
+			}
+			println!(" > restoring '{name}'");
+			module.restore(&self)?;
+		}
+
+		Ok(())
+	}
+
+	pub fn snapshot(self, filter: Option<String>) -> Result<(), Box<dyn std::error::Error>> {
+		for (name, module) in self.cfg.r#mod.iter() {
+			if !filter.as_ref().map(|m| m == name).unwrap_or(true) {
+				continue;
+			}
+			println!(" > snapshotting '{name}'");
+			module.snapshot(&self)?;
 		}
 
 		Ok(())
