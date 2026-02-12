@@ -1,6 +1,6 @@
 
 pub trait UserManager {
-	fn create_user(&self, name: &str, groups: &[&dyn AsRef<str>], system: bool) -> Result<(), UserManagerError>;
+	fn create_user(&self, name: &str, groups: &[String], system: bool) -> Result<(), UserManagerError>;
 }
 
 #[derive(Debug, thiserror::Error)]
@@ -12,7 +12,7 @@ pub enum UserManagerError {
 pub struct Usermod;
 
 impl UserManager for Usermod {
-	fn create_user(&self, name: &str, groups: &[&dyn AsRef<str>], system: bool) -> Result<(), UserManagerError> {
+	fn create_user(&self, name: &str, groups: &[String], system: bool) -> Result<(), UserManagerError> {
 		let prefs: &[&str] = if system {
 			&["--system"]
 		} else {

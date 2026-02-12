@@ -13,16 +13,10 @@ pub struct Isac {
 #[serde_inline_default::serde_inline_default]
 #[derive(Debug, serde_default::DefaultFromSerde, serde::Deserialize, serde::Serialize)]
 pub struct System {
-	#[serde_inline_default("etc".to_string())]
+	#[serde_inline_default("/etc".to_string())]
 	pub configs: String,
 
-	#[serde_inline_default("var/lib".to_string())]
-	pub data: String,
-
-	#[serde_inline_default("/".to_string())]
-	pub root: String,
-
-	#[serde_inline_default("services".to_string())]
+	#[serde_inline_default("/etc/systemd/system".to_string())]
 	pub services: String,
 }
 
@@ -39,13 +33,25 @@ pub struct Module {
 	pub services: Vec<String>,
 
 	#[serde(default)]
-	pub user: Option<String>,
+	pub user: Option<UserConfig>,
 
 	#[serde(default)]
-	pub dumper: Option<String>,
+	pub data: Option<DataConfig>,
+}
 
+#[derive(Debug, serde::Deserialize, serde::Serialize)]
+pub struct UserConfig {
+	pub name: String,
 	#[serde(default)]
-	pub loader: Option<String>,
+	pub groups: Vec<String>,
+	#[serde(default)]
+	pub system: bool,
+}
+
+#[derive(Debug, serde::Deserialize, serde::Serialize)]
+pub struct DataConfig {
+	pub loader: String,
+	pub dumper: String,
 }
 
 impl Isac {

@@ -3,10 +3,11 @@ use std::str::FromStr;
 
 pub struct Context {
 	pub cfg: crate::conf::Isac,
-	pub config_from: std::path::PathBuf,
-	pub config_to: std::path::PathBuf,
+	pub configs_path: std::path::PathBuf,
+	pub configs_local_path: std::path::PathBuf,
 	pub services_path: std::path::PathBuf,
-	// pub root: std::path::PathBuf,
+	pub services_local_path: std::path::PathBuf,
+	pub data_local_path: std::path::PathBuf,
 
 	pub installer: Box<dyn crate::tool::Installer>,
 	pub services: Box<dyn crate::tool::ServiceManager>,
@@ -16,20 +17,16 @@ pub struct Context {
 impl Context {
 	// TODO should gather system info and construct a proper context
 	pub fn new(cfg: crate::conf::Isac, root: std::path::PathBuf) -> Self {
-		let mut config_from = root.clone();
-		config_from.push(&cfg.system.configs);
-		let mut config_to = std::path::PathBuf::from_str(&cfg.system.root).expect("infallible");
-		config_to.push(&cfg.system.configs);
-		let services_path = root.join(&cfg.system.services);
 		Self {
-			cfg,
-			config_from,
-			config_to,
-			services_path,
-			// root,
+			configs_path: std::path::PathBuf::from_str(&cfg.system.configs).expect("infallible"),
+			configs_local_path: root.join("config"),
+			services_path: std::path::PathBuf::from_str(&cfg.system.services).expect("infallible"),
+			services_local_path: root.join("services"),
+			data_local_path: root.join("data"),
 			installer: Box::new(crate::tool::installer::Pacman),
 			services: Box::new(crate::tool::services::Systemd),
 			users: Box::new(crate::tool::user::Usermod),
+			cfg,
 		}
 	}
 
@@ -39,7 +36,7 @@ impl Context {
 				continue;
 			}
 			println!(" > restoring '{name}'");
-			module.restore(&self)?;
+			module.restore(name.as_str(), &self)?;
 		}
 
 		Ok(())
@@ -51,7 +48,7 @@ impl Context {
 				continue;
 			}
 			println!(" > snapshotting '{name}'");
-			module.snapshot(&self)?;
+			module.snapshot(name.as_str(), &self)?;
 		}
 
 		Ok(())

@@ -8,8 +8,6 @@ pub trait ServiceManager {
 
 	fn start(&self, service: &str) -> Result<(), ServiceError>;
 	fn stop(&self, service: &str) -> Result<(), ServiceError>;
-
-	fn install(&self, path: std::path::PathBuf) -> Result<(), ServiceError>;
 }
 
 #[derive(Debug, thiserror::Error)]
@@ -41,10 +39,5 @@ impl ServiceManager for Systemd {
 
 	fn disable(&self, service: &str) -> Result<(), ServiceError> {
 		Ok(super::run_command("systemctl", &["disable"], &[service])?)
-	}
-
-	fn install(&self, path: std::path::PathBuf) -> Result<(), ServiceError> {
-		std::fs::copy(path, "/etc/systemd/system/")?;
-		Ok(())
 	}
 }
