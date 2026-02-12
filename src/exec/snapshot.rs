@@ -8,7 +8,7 @@ impl crate::conf::Module {
 			fs_extra::copy_items(
 				&[&ctx.config_to.join(c)],
 				&ctx.config_from,
-				&CopyOptions::new()
+				&CopyOptions::new().overwrite(true)
 			)?;
 		}
 
