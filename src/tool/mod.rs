@@ -4,6 +4,9 @@ pub use installer::Installer;
 pub mod services;
 pub use services::ServiceManager;
 
+pub mod user;
+pub use user::UserManager;
+
 #[derive(Debug, thiserror::Error)]
 pub enum CommandError {
 	#[error("error executing command in shell: {0} - {0:?}")]
@@ -12,6 +15,8 @@ pub enum CommandError {
 	#[error("command returned error: {0}")]
 	Command(String),
 }
+
+pub const NO_ARGS: &[&str; 0] = &[];
 
 pub fn run_command<T: AsRef<std::ffi::OsStr>>(cmd: &'static str, pref: &[&'static str], args: &[T]) -> Result<(), CommandError> {
 	let out = std::process::Command::new(cmd)

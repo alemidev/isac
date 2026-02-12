@@ -18,6 +18,9 @@ pub enum ExecutorError {
 	#[error("error managing system services: {0} - {0:?}")]
 	Services(#[from] crate::tool::services::ServiceError),
 
+	#[error("error managing new users: {0} - {0:?}")]
+	Users(#[from] crate::tool::user::UserManagerError),
+
 	#[error("error executing custom shell command: {0} - {0:?}")]
 	Command(#[from] crate::tool::CommandError),
 }

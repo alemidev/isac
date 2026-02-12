@@ -21,6 +21,9 @@ pub struct System {
 
 	#[serde_inline_default("/".to_string())]
 	pub root: String,
+
+	#[serde_inline_default("services".to_string())]
+	pub services: String,
 }
 
 #[serde_inline_default::serde_inline_default]
@@ -34,6 +37,9 @@ pub struct Module {
 
 	#[serde(default)]
 	pub services: Vec<String>,
+
+	#[serde(default)]
+	pub user: Option<String>,
 
 	#[serde(default)]
 	pub dumper: Option<String>,

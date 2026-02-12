@@ -19,8 +19,18 @@ impl crate::conf::Module {
 		}
 
 		for s in self.services.iter() {
+			let unit_file = ctx.services_path.join(s);
+			if std::fs::exists(&unit_file)? {
+				ctx.services.install(unit_file)?;
+				ctx.services.reload()?;
+			}
 			ctx.services.enable(s)?;
 			ctx.services.start(s)?;
+		}
+
+		if let Some(ref user) = self.user {
+			// TODO allow configuring groups and wether it's a system user
+			ctx.users.create_user(user, &[], true)?;
 		}
 
 		Ok(())

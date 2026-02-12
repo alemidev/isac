@@ -5,9 +5,12 @@ pub struct Context {
 	pub cfg: crate::conf::Isac,
 	pub config_from: std::path::PathBuf,
 	pub config_to: std::path::PathBuf,
+	pub services_path: std::path::PathBuf,
+	// pub root: std::path::PathBuf,
 
 	pub installer: Box<dyn crate::tool::Installer>,
 	pub services: Box<dyn crate::tool::ServiceManager>,
+	pub users: Box<dyn crate::tool::UserManager>,
 }
 
 impl Context {
@@ -17,12 +20,16 @@ impl Context {
 		config_from.push(&cfg.system.configs);
 		let mut config_to = std::path::PathBuf::from_str(&cfg.system.root).expect("infallible");
 		config_to.push(&cfg.system.configs);
+		let services_path = root.join(&cfg.system.services);
 		Self {
 			cfg,
 			config_from,
 			config_to,
+			services_path,
+			// root,
 			installer: Box::new(crate::tool::installer::Pacman),
 			services: Box::new(crate::tool::services::Systemd),
+			users: Box::new(crate::tool::user::Usermod),
 		}
 	}
 

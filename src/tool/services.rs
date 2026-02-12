@@ -1,22 +1,32 @@
 
 #[allow(unused)]
 pub trait ServiceManager {
+	fn reload(&self) -> Result<(), ServiceError>;
+
 	fn enable(&self, service: &str) -> Result<(), ServiceError>;
 	fn disable(&self, service: &str) -> Result<(), ServiceError>;
 
 	fn start(&self, service: &str) -> Result<(), ServiceError>;
 	fn stop(&self, service: &str) -> Result<(), ServiceError>;
+
+	fn install(&self, path: std::path::PathBuf) -> Result<(), ServiceError>;
 }
 
 #[derive(Debug, thiserror::Error)]
 pub enum ServiceError {
 	#[error("error executing command: {0} - {0:?}")]
 	Command(#[from] super::CommandError),
+
+	#[error("error copying unit file: {0} - {0:?}")]
+	IO(#[from] std::io::Error),
 }
 
 pub struct Systemd;
 
 impl ServiceManager for Systemd {
+	fn reload(&self) -> Result<(), ServiceError> {
+		Ok(super::run_command("systemctl", &["daemon-reload"], super::NO_ARGS)?)
+	}
 	fn start(&self, service: &str) -> Result<(), ServiceError> {
 		Ok(super::run_command("systemctl", &["start"], &[service])?)
 	}
@@ -31,5 +41,10 @@ impl ServiceManager for Systemd {
 
 	fn disable(&self, service: &str) -> Result<(), ServiceError> {
 		Ok(super::run_command("systemctl", &["disable"], &[service])?)
+	}
+
+	fn install(&self, path: std::path::PathBuf) -> Result<(), ServiceError> {
+		std::fs::copy(path, "/etc/systemd/system/")?;
+		Ok(())
 	}
 }
