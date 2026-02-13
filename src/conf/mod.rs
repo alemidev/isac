@@ -52,9 +52,15 @@ pub struct UserConfig {
 }
 
 #[derive(Debug, serde::Deserialize, serde::Serialize)]
-pub struct DataConfig {
-	pub loader: String,
-	pub dumper: String,
+#[serde(untagged)]
+pub enum DataConfig {
+	Script {
+		loader: String,
+		dumper: String,
+	},
+	Directory {
+		path: String,
+	},
 }
 
 impl Isac {

@@ -35,7 +35,18 @@ impl crate::conf::Module {
 		if let Some(ref data) = self.data {
 			let cwd = ctx.path.data.join(name);
 			std::fs::create_dir_all(&cwd)?;
-			crate::tool::bash_exec(cwd, &data.dumper)?;
+			match data {
+				crate::conf::DataConfig::Script { dumper, .. } => {
+					crate::tool::bash_exec(cwd, dumper)?;
+				},
+				crate::conf::DataConfig::Directory { path } => {
+					fs_extra::copy_items(
+						&[path],
+						cwd,
+						&CopyOptions::new().overwrite(true)
+					)?;
+				},
+			}
 		}
 
 		Ok(())

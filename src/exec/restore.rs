@@ -32,10 +32,21 @@ impl crate::conf::Module {
 
 		if let Some(ref data) = self.data {
 			let cwd = ctx.path.data.join(name);
-			if std::fs::exists(&cwd)? {
-				crate::tool::bash_exec(cwd, &data.loader)?;
-			} else {
-				eprintln!("<?> no data to load for {name}");
+			match data {
+				crate::conf::DataConfig::Script { loader, .. } => {
+					if std::fs::exists(&cwd)? {
+						crate::tool::bash_exec(cwd, loader)?;
+					} else {
+						eprintln!("<?> no data to load for {name}");
+					}
+				},
+				crate::conf::DataConfig::Directory { path } => {
+					fs_extra::copy_items(
+						&[cwd],
+						path,
+						&CopyOptions::new().overwrite(true)
+					)?;
+				},
 			}
 		}
 
