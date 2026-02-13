@@ -4,7 +4,7 @@ mod tool;
 
 use clap::Parser;
 
-/// InfraStructureAsCode - configure fresh machines from a single config tree
+/// Infrastructure Setup As Config
 #[derive(Debug, Parser)]
 struct Cli {
 	/// action to take
