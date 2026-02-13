@@ -1,4 +1,8 @@
 # isac
+[![Actions Status](https://github.com/alemidev/isac/actions/workflows/test.yml/badge.svg?branch=dev)](https://github.com/alemidev/isac/actions/workflows/test.yml)
+[![Actions Status](https://github.com/alemidev/isac/actions/workflows/release.yml/badge.svg)](https://github.com/alemidev/isac/actions/workflows/release.yml)
+[![GitHub last commit](https://img.shields.io/github/last-commit/alemidev/isac)](https://github.com/alemidev/isac/commits/dev/)
+
 > a modular and hackable system configurator for selfhosted infrastructure
 
 `isac` (infrastructure setup as config) is a somewhat simpler [ansible](https://github.com/ansible/ansible): it allows to automatically configure fresh machines from a snapshot, generated from a single toml file
