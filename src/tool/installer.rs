@@ -19,7 +19,7 @@ pub struct Pacman;
 
 impl Installer for Pacman {
 	fn install(&self, packages: &[String]) -> Result<(), InstallerError> {
-		Ok(super::run_command("pacman", &["-S"], packages)?)
+		Ok(super::run_command("pacman", &["-S", "--noconfirm"], packages)?)
 	}
 
 	fn is_installed(&self, package: &str) -> Result<bool, InstallerError> {
