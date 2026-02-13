@@ -11,11 +11,10 @@ impl crate::conf::Module {
 
 		std::fs::create_dir_all(&ctx.services_local_path)?;
 		for s in self.services.iter() {
-			fs_extra::copy_items(
-				&[&ctx.services_path.join(s)],
-				&ctx.services_local_path,
-				&CopyOptions::new().overwrite(true)
-			)?;
+			let s_path = ctx.services_path.join(s);
+			if std::fs::exists(&s_path)? {
+				std::fs::copy(s_path, &ctx.services_local_path)?;
+			}
 		}
 
 		std::fs::create_dir_all(&ctx.configs_local_path)?;
