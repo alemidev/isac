@@ -21,7 +21,7 @@ impl crate::conf::Module {
 		}
 
 		if let Some(ref user) = self.user {
-			ctx.users.create_user(&user.name, &user.groups, user.system)?;
+			ctx.users.create_user(&user.name, user.basedir.as_deref(), &user.groups, user.system)?;
 		}
 
 		if let Some(ref compile) = self.compile {

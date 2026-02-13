@@ -49,6 +49,8 @@ pub struct UserConfig {
 	pub groups: Vec<String>,
 	#[serde(default)]
 	pub system: bool,
+	#[serde(default)]
+	pub basedir: Option<String>,
 }
 
 #[derive(Debug, serde::Deserialize, serde::Serialize)]
