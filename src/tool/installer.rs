@@ -26,7 +26,8 @@ impl Installer for Pacman {
 			std::process::Command::new("pacman")
 				.arg("-Q")
 				.arg(package)
-				.status()?
+				.output()?
+				.status
 				.success()
 		)
 	}
