@@ -1,6 +1,5 @@
 
-#[allow(unused)]
-pub trait ServiceManager {
+pub trait ServiceManager: std::fmt::Debug {
 	fn reload(&self) -> Result<(), ServiceError>;
 
 	fn enable(&self, service: &str) -> Result<(), ServiceError>;
@@ -19,6 +18,7 @@ pub enum ServiceError {
 	IO(#[from] std::io::Error),
 }
 
+#[derive(Debug)]
 pub struct Systemd;
 
 impl ServiceManager for Systemd {

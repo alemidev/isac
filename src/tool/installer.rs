@@ -1,5 +1,5 @@
 
-pub trait Installer {
+pub trait Installer: std::fmt::Debug {
 	fn install(&self, packages: &[String]) -> Result<(), InstallerError>;
 	fn is_installed(&self, package: &str) -> Result<bool, InstallerError>;
 }
@@ -14,6 +14,7 @@ pub enum InstallerError {
 }
 
 
+#[derive(Debug)]
 pub struct Pacman;
 
 impl Installer for Pacman {

@@ -24,6 +24,9 @@ pub struct System {
 #[derive(Debug, serde_default::DefaultFromSerde, serde::Deserialize, serde::Serialize)]
 pub struct Module {
 	#[serde(default)]
+	pub compile: Option<String>,
+
+	#[serde(default)]
 	pub dependencies: Vec<String>,
 
 	#[serde(default)]

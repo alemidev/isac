@@ -1,5 +1,5 @@
 
-pub trait UserManager {
+pub trait UserManager: std::fmt::Debug {
 	fn create_user(&self, name: &str, groups: &[String], system: bool) -> Result<(), UserManagerError>;
 }
 
@@ -9,6 +9,7 @@ pub enum UserManagerError {
 	Command(#[from] super::CommandError),
 }
 
+#[derive(Debug)]
 pub struct Usermod;
 
 impl UserManager for Usermod {
