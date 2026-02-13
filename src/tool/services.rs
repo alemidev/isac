@@ -1,4 +1,5 @@
 
+#[allow(unused)]
 pub trait ServiceManager: std::fmt::Debug {
 	fn reload(&self) -> Result<(), ServiceError>;
 
