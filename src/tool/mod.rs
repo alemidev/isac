@@ -35,18 +35,20 @@ pub fn run_command<T: AsRef<std::ffi::OsStr>>(cmd: &'static str, pref: &[&'stati
 }
 
 pub fn bash_exec(cwd: std::path::PathBuf, script: &str) -> std::io::Result<()> {
-	let child = std::process::Command::new("bash")
+	let mut child = std::process::Command::new("bash")
 		.arg("-")
 		.current_dir(cwd)
 		.stdin(std::process::Stdio::piped())
 		.spawn()?;
 
 	use std::io::Write;
-	if let Some(mut stdin) = child.stdin {
+	if let Some(mut stdin) = child.stdin.take() {
 		stdin.write_all(script.as_bytes())?;
 	} else {
 		eprintln!("[!] error passing script via stdin");
 	}
+
+	child.wait()?;
 
 	Ok(())
 }
