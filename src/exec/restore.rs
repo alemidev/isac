@@ -5,6 +5,10 @@ impl crate::conf::Module {
 	pub fn restore(&self, name: &str, ctx: &crate::exec::Context) -> Result<(), super::ExecutorError> {
 		ctx.installer.install(&self.dependencies)?;
 
+		if let Some(ref user) = self.user {
+			ctx.users.create_user(&user.name, user.basedir.as_deref(), &user.groups, user.system)?;
+		}
+
 		std::fs::create_dir_all(&ctx.path.configs)?;
 		for c in self.configs.iter() {
 			let dest = ctx.path.configs.join(c)
@@ -13,15 +17,15 @@ impl crate::conf::Module {
 			if let Some(ref d) = dest {
 				std::fs::create_dir_all(d)?;
 			}
+			let dest = dest.as_ref().unwrap_or(&ctx.path.configs);
 			fs_extra::copy_items(
 				&[&ctx.path.configs_local.join(c)],
-				dest.as_ref().unwrap_or(&ctx.path.configs),
+				dest,
 				&CopyOptions::new().overwrite(true).copy_inside(true)
 			)?;
-		}
-
-		if let Some(ref user) = self.user {
-			ctx.users.create_user(&user.name, user.basedir.as_deref(), &user.groups, user.system)?;
+			if let Some(ref user) = self.user {
+				ctx.users.change_owner(dest.to_string_lossy().as_ref(), &user.name)?;
+			}
 		}
 
 		if let Some(ref compile) = self.compile {
@@ -44,8 +48,11 @@ impl crate::conf::Module {
 					fs_extra::copy_items(
 						&[cwd],
 						path,
-						&CopyOptions::new().overwrite(true)
+						&CopyOptions::new().overwrite(true).copy_inside(true)
 					)?;
+					if let Some(ref user) = self.user {
+						ctx.users.change_owner(path.to_string_lossy().as_ref(), &user.name)?;
+					}
 				},
 			}
 		}
