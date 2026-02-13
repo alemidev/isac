@@ -5,12 +5,6 @@ impl crate::conf::Module {
 	pub fn restore(&self, name: &str, ctx: &crate::exec::Context) -> Result<(), super::ExecutorError> {
 		ctx.installer.install(&self.dependencies)?;
 
-		if let Some(ref compile) = self.compile {
-			let path = ctx.path.compile.join(name);
-			std::fs::create_dir_all(&path)?;
-			crate::tool::bash_exec(path, compile)?;
-		}
-
 		std::fs::create_dir_all(&ctx.path.configs)?;
 		for c in self.configs.iter() {
 			let dest = ctx.path.configs.join(c)
@@ -26,6 +20,16 @@ impl crate::conf::Module {
 			)?;
 		}
 
+		if let Some(ref user) = self.user {
+			ctx.users.create_user(&user.name, &user.groups, user.system)?;
+		}
+
+		if let Some(ref compile) = self.compile {
+			let path = ctx.path.compile.join(name);
+			std::fs::create_dir_all(&path)?;
+			crate::tool::bash_exec(path, compile)?;
+		}
+
 		if let Some(ref data) = self.data {
 			let cwd = ctx.path.data.join(name);
 			if std::fs::exists(&cwd)? {
@@ -33,10 +37,6 @@ impl crate::conf::Module {
 			} else {
 				eprintln!("<?> no data to load for {name}");
 			}
-		}
-
-		if let Some(ref user) = self.user {
-			ctx.users.create_user(&user.name, &user.groups, user.system)?;
 		}
 
 		for s in self.services.iter() {
