@@ -1,7 +1,7 @@
 
 pub trait UserManager: std::fmt::Debug {
 	fn create_user(&self, name: &str, basedir: Option<&str>, groups: &[String], system: bool) -> Result<(), UserManagerError>;
-	fn change_owner(&self, path: &str, name: &str) -> Result<(), UserManagerError>;
+	fn change_owner(&self, path: &std::path::Path, name: &str) -> Result<(), UserManagerError>;
 }
 
 #[derive(Debug, thiserror::Error)]
@@ -33,7 +33,13 @@ impl UserManager for Usermod {
 		Ok(())
 	}
 
-	fn change_owner(&self, path: &str, name: &str) -> Result<(), UserManagerError> {
-		Ok(super::run_command("chown", &["-R"], &[name, path])?)
+	fn change_owner(&self, path: &std::path::Path, name: &str) -> Result<(), UserManagerError> {
+		Ok(
+			super::run_command(
+				"chown",
+				&["-R"],
+				&[name, path.to_string_lossy().as_ref()],
+			)?
+		)
 	}
 }

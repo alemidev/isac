@@ -1,68 +1,46 @@
-use fs_extra::dir::CopyOptions;
-
+use std::str::FromStr;
 
 impl crate::conf::Module {
-	pub fn restore(&self, name: &str, ctx: &crate::exec::Context) -> Result<(), super::ExecutorError> {
-		ctx.installer.install(&self.dependencies)?;
+	pub fn restore(&self, _name: &str, ctx: &crate::exec::Context) -> Result<(), super::ExecutorError> {
+		ctx.installer.install(&self.deps)?;
 
 		if let Some(ref user) = self.user {
 			ctx.users.create_user(&user.name, user.basedir.as_deref(), &user.groups, user.system)?;
 		}
 
-		std::fs::create_dir_all(&ctx.path.configs)?;
-		for c in self.configs.iter() {
-			let dest = ctx.path.configs.join(c)
-				.parent()
-				.map(|p| p.to_path_buf());
-			if let Some(ref d) = dest {
-				std::fs::create_dir_all(d)?;
+		for f in self.files.iter() {
+			let file_path = std::path::PathBuf::from_str(f).expect("infallible");
+			// TODO this doesnt work on windows!
+			let Ok(local_path) = file_path.strip_prefix("/").map(|x| x.to_path_buf())
+			else {
+				return Err(super::ExecutorError::Path(f.clone()));
+			};
+			if let Some(ancestor) = file_path.parent() {
+				std::fs::create_dir_all(ancestor)?;
 			}
-			let dest = dest.as_ref().unwrap_or(&ctx.path.configs);
-			fs_extra::copy_items(
-				&[&ctx.path.configs_local.join(c)],
-				dest,
-				&CopyOptions::new().overwrite(true).copy_inside(true)
-			)?;
+			let store_path = ctx.root.join(local_path);
+
+			if file_path.is_dir() {
+				fs_extra::copy_items(
+					&[store_path],
+					&file_path,
+					&fs_extra::dir::CopyOptions::new().overwrite(true)
+				)?;
+			} else {
+				std::fs::copy(store_path, &file_path)?;
+			}
+
 			if let Some(ref user) = self.user {
-				ctx.users.change_owner(dest.to_string_lossy().as_ref(), &user.name)?;
+				ctx.users.change_owner(&file_path, &user.name)?;
 			}
 		}
 
-		if let Some(ref compile) = self.compile {
-			let path = ctx.path.compile.join(name);
-			std::fs::create_dir_all(&path)?;
-			crate::tool::bash_exec(path, compile)?;
+		if let Some(ref loader) = self.exec.loader {
+			crate::tool::bash_exec(&ctx.root, loader)?;
 		}
 
-		if let Some(ref data) = self.data {
-			let cwd = ctx.path.data.join(name);
-			match data {
-				crate::conf::DataConfig::Script { loader, .. } => {
-					if std::fs::exists(&cwd)? {
-						crate::tool::bash_exec(cwd, loader)?;
-					} else {
-						eprintln!("<?> no data to load for {name}");
-					}
-				},
-				crate::conf::DataConfig::Directory { path } => {
-					fs_extra::copy_items(
-						&[cwd],
-						path,
-						&CopyOptions::new().overwrite(true).copy_inside(true)
-					)?;
-					if let Some(ref user) = self.user {
-						ctx.users.change_owner(path.to_string_lossy().as_ref(), &user.name)?;
-					}
-				},
-			}
-		}
-
-		for s in self.services.iter() {
-			let unit_file = ctx.path.services_local.join(format!("{s}.service"));
-			if std::fs::exists(&unit_file)? {
-				std::fs::copy(unit_file, &ctx.path.services)?;
-				ctx.services.reload()?;
-			}
+		for s in self.units.iter() {
+			ctx.services.reload()?;
 			ctx.services.enable(s)?;
 			ctx.services.start(s)?;
 		}

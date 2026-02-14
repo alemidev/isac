@@ -23,4 +23,7 @@ pub enum ExecutorError {
 
 	#[error("error executing custom shell command: {0} - {0:?}")]
 	Command(#[from] crate::tool::CommandError),
+
+	#[error("invalid path encountered: {0}")]
+	Path(String),
 }

@@ -34,7 +34,7 @@ pub fn run_command<T: AsRef<std::ffi::OsStr>>(cmd: &'static str, pref: &[&'stati
 	Ok(())
 }
 
-pub fn bash_exec(cwd: std::path::PathBuf, script: &str) -> std::io::Result<()> {
+pub fn bash_exec(cwd: &std::path::Path, script: &str) -> std::io::Result<()> {
 	let mut child = std::process::Command::new("bash")
 		.arg("-")
 		.current_dir(cwd)

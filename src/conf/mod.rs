@@ -24,22 +24,19 @@ pub struct System {
 #[derive(Debug, serde_default::DefaultFromSerde, serde::Deserialize, serde::Serialize)]
 pub struct Module {
 	#[serde(default)]
-	pub compile: Option<String>,
+	pub deps: Vec<String>,
 
 	#[serde(default)]
-	pub dependencies: Vec<String>,
+	pub files: Vec<String>,
 
 	#[serde(default)]
-	pub configs: Vec<String>,
-
-	#[serde(default)]
-	pub services: Vec<String>,
+	pub units: Vec<String>,
 
 	#[serde(default)]
 	pub user: Option<UserConfig>,
 
 	#[serde(default)]
-	pub data: Option<DataConfig>,
+	pub exec: DataConfig,
 }
 
 #[derive(Debug, serde::Deserialize, serde::Serialize)]
@@ -53,16 +50,12 @@ pub struct UserConfig {
 	pub basedir: Option<String>,
 }
 
-#[derive(Debug, serde::Deserialize, serde::Serialize)]
-#[serde(untagged)]
-pub enum DataConfig {
-	Script {
-		loader: String,
-		dumper: String,
-	},
-	Directory {
-		path: String,
-	},
+#[derive(Debug, Default, serde::Deserialize, serde::Serialize)]
+pub struct DataConfig {
+	#[serde(default)]
+	pub loader: Option<String>,
+	#[serde(default)]
+	pub dumper: Option<String>,
 }
 
 impl Isac {
