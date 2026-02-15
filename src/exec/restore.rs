@@ -2,7 +2,9 @@ use std::str::FromStr;
 
 impl crate::conf::Module {
 	pub fn restore(&self, _name: &str, ctx: &crate::exec::Context) -> Result<(), super::ExecutorError> {
-		ctx.installer.install(&self.deps)?;
+		if !self.deps.is_empty() {
+			ctx.installer.install(&self.deps)?;
+		}
 
 		if let Some(ref user) = self.user
 			&& !ctx.users.esixts(&user.name)?
