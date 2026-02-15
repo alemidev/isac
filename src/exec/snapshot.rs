@@ -22,11 +22,7 @@ impl crate::conf::Module {
 			let store_path = ctx.root.join(local_path);
 
 			if file_path.is_dir() {
-				fs_extra::copy_items(
-					&[file_path],
-					store_path,
-					&fs_extra::dir::CopyOptions::new().overwrite(true)
-				)?;
+				dircpy::copy_dir(&file_path, &store_path)?;
 			} else {
 				std::fs::copy(file_path, store_path)?;
 			}
