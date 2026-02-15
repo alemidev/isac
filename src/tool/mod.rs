@@ -19,6 +19,7 @@ pub enum CommandError {
 pub const NO_ARGS: &[&str; 0] = &[];
 
 pub fn run_command<T: AsRef<std::ffi::OsStr>>(cmd: &'static str, pref: &[&'static str], args: &[T]) -> Result<(), CommandError> {
+	println!("[$] {cmd} {} {}", pref.join(" "), args.iter().map(|x| x.as_ref().to_string_lossy().to_string()).collect::<Vec<String>>().join(" "));
 	let out = std::process::Command::new(cmd)
 		.args(pref)
 		.args(args)
