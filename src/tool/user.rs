@@ -1,6 +1,7 @@
 
 pub trait UserManager: std::fmt::Debug {
-	fn create_user(&self, name: &str, basedir: Option<&str>, groups: &[String], system: bool) -> Result<(), UserManagerError>;
+	fn esixts(&self, name: &str) -> Result<bool, UserManagerError>;
+	fn create(&self, name: &str, basedir: Option<&str>, groups: &[String], system: bool) -> Result<(), UserManagerError>;
 	fn change_owner(&self, path: &std::path::Path, name: &str) -> Result<(), UserManagerError>;
 }
 
@@ -8,13 +9,20 @@ pub trait UserManager: std::fmt::Debug {
 pub enum UserManagerError {
 	#[error("error executing command: {0} - {0:?}")]
 	Command(#[from] super::CommandError),
+
+	#[error("error accessing file: {0} - {0:?}")]
+	IO(#[from] std::io::Error),
 }
 
 #[derive(Debug)]
 pub struct Usermod;
 
 impl UserManager for Usermod {
-	fn create_user(&self, name: &str, basedir: Option<&str>, groups: &[String], system: bool) -> Result<(), UserManagerError> {
+	fn esixts(&self, name: &str) -> Result<bool, UserManagerError> {
+		Ok(std::fs::read_to_string("/etc/passwd")?.contains(name))
+	}
+
+	fn create(&self, name: &str, basedir: Option<&str>, groups: &[String], system: bool) -> Result<(), UserManagerError> {
 		let prefs: &[&str] = if system {
 			&["--system"]
 		} else {

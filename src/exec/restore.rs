@@ -4,8 +4,10 @@ impl crate::conf::Module {
 	pub fn restore(&self, _name: &str, ctx: &crate::exec::Context) -> Result<(), super::ExecutorError> {
 		ctx.installer.install(&self.deps)?;
 
-		if let Some(ref user) = self.user {
-			ctx.users.create_user(&user.name, user.basedir.as_deref(), &user.groups, user.system)?;
+		if let Some(ref user) = self.user
+			&& !ctx.users.esixts(&user.name)?
+		{
+			ctx.users.create(&user.name, user.basedir.as_deref(), &user.groups, user.system)?;
 		}
 
 		for f in self.files.iter() {
