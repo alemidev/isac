@@ -16,10 +16,10 @@ impl crate::conf::Module {
 			else {
 				return Err(super::ExecutorError::Path(f.clone()));
 			};
-			if let Some(ancestor) = local_path.parent() {
+			let store_path = ctx.root.join(local_path);
+			if let Some(ancestor) = store_path.parent() {
 				std::fs::create_dir_all(ancestor)?;
 			}
-			let store_path = ctx.root.join(local_path);
 
 			if file_path.is_dir() {
 				dircpy::copy_dir(&file_path, &store_path)?;
